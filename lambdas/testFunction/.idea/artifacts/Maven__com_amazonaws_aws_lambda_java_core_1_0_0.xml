@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact name="Maven__com_amazonaws_aws-lambda-java-core_1_0_0">
+    <output-path>$PROJECT_DIR$/out/artifacts/Maven__com_amazonaws_aws_lambda_java_core_1_0_0</output-path>
+    <root id="root">
+      <element id="library" level="project" name="Maven: com.amazonaws:aws-lambda-java-core:1.0.0" />
+    </root>
+  </artifact>
+</component>

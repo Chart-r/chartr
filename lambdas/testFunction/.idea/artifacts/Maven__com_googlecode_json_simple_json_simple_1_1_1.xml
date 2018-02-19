@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact name="Maven__com_googlecode_json-simple_json-simple_1_1_1">
+    <output-path>$PROJECT_DIR$/out/artifacts/Maven__com_googlecode_json_simple_json_simple_1_1_1</output-path>
+    <root id="root">
+      <element id="library" level="project" name="Maven: com.googlecode.json-simple:json-simple:1.1.1" />
+    </root>
+  </artifact>
+</component>
