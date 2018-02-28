@@ -5,7 +5,7 @@ let AWS = require('aws-sdk');
 let dynamodb = new AWS.DynamoDB({ apiVersion: '2012-08-10' });
 let docClient = new AWS.DynamoDB.DocumentClient();
 
-exports.handler = function(event, context) {
+exports.handler = function(event, context, callback) {
     console.log("Entered function handler...");
     let method = event.httpMethod;
 
@@ -23,9 +23,13 @@ exports.handler = function(event, context) {
         docClient.put(parameters, function(err, data) {
             if (err) {
                 console.log("Error", err);
+
+                writeAPIOutput(500, "Server error", callback);
             }
             else {
                 console.log("Success", data);
+
+                writeAPIOutput(200, "Successfully created user!", callback);
             }
         });
     }
@@ -41,10 +45,16 @@ exports.handler = function(event, context) {
         };
 
         docClient.get(params, function(err, data) {
-            if (err) console.log(err);
-            else console.log(data["Item"]);
+            if (err) {
+                console.log(err);
 
-            context.done(null, data["Item"]);
+                writeAPIOutput(500, err, callback);
+            }
+            else {
+                console.log(data["Item"]);
+
+                writeAPIOutput(200, data["Item"], callback)
+            }
         });
 
     }
@@ -87,8 +97,16 @@ exports.handler = function(event, context) {
         console.log(params);
 
         docClient.update(params, (err, data) => {
-            if (err) console.log(err);
-            else console.log(data);
+            if (err) {
+                console.log(err);
+
+                writeAPIOutput(500, "Server error", callback);
+            }
+            else {
+                console.log(data);
+
+                writeAPIOutput(200, "Successfully updated user!", callback);
+            }
         });
     }
     else if (method === "DELETE") {
@@ -103,8 +121,25 @@ exports.handler = function(event, context) {
         };
 
         docClient.delete(params, function(err, data) {
-            if (err) console.log(err);
-            else console.log(data);
+            if (err) {
+                console.log(err);
+
+                writeAPIOutput(500, "Server error", callback);
+            }
+            else {
+                console.log(data);
+
+                writeAPIOutput(200, "Successfully deleted user!", callback);
+            }
         });
     }
 };
+
+function writeAPIOutput(statCode, bodyMessage, callback) {
+    let response = {
+        statusCode : statCode,
+        body: JSON.stringify(bodyMessage)
+    };
+
+    callback(null, response);
+}

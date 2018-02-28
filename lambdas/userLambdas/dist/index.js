@@ -5,7 +5,7 @@ var AWS = require('aws-sdk');
 var dynamodb = new AWS.DynamoDB({ apiVersion: '2012-08-10' });
 var docClient = new AWS.DynamoDB.DocumentClient();
 
-exports.handler = function (event, context) {
+exports.handler = function (event, context, callback) {
     console.log("Entered function handler...");
     var method = event.httpMethod;
 
@@ -24,8 +24,12 @@ exports.handler = function (event, context) {
         docClient.put(parameters, function (err, data) {
             if (err) {
                 console.log("Error", err);
+
+                writeAPIOutput(500, "Server error", callback);
             } else {
                 console.log("Success", data);
+
+                writeAPIOutput(200, "Successfully created user!", callback);
             }
         });
     } else if (method === "GET") {
@@ -41,9 +45,15 @@ exports.handler = function (event, context) {
         };
 
         docClient.get(params, function (err, data) {
-            if (err) console.log(err);else console.log(data["Item"]);
+            if (err) {
+                console.log(err);
 
-            context.done(null, data["Item"]);
+                writeAPIOutput(500, err, callback);
+            } else {
+                console.log(data["Item"]);
+
+                writeAPIOutput(200, data["Item"], callback);
+            }
         });
     } else if (method === "UPDATE") {
         console.log("Handling update user event");
@@ -84,7 +94,15 @@ exports.handler = function (event, context) {
         console.log(_params);
 
         docClient.update(_params, function (err, data) {
-            if (err) console.log(err);else console.log(data);
+            if (err) {
+                console.log(err);
+
+                writeAPIOutput(500, "Server error", callback);
+            } else {
+                console.log(data);
+
+                writeAPIOutput(200, "Successfully updated user!", callback);
+            }
         });
     } else if (method === "DELETE") {
         console.log("Handling delete user event");
@@ -98,8 +116,25 @@ exports.handler = function (event, context) {
         };
 
         docClient.delete(_params2, function (err, data) {
-            if (err) console.log(err);else console.log(data);
+            if (err) {
+                console.log(err);
+
+                writeAPIOutput(500, "Server error", callback);
+            } else {
+                console.log(data);
+
+                writeAPIOutput(200, "Successfully deleted user!", callback);
+            }
         });
     }
 };
+
+function writeAPIOutput(statCode, bodyMessage, callback) {
+    var response = {
+        statusCode: statCode,
+        body: JSON.stringify(bodyMessage)
+    };
+
+    callback(null, response);
+}
 //# sourceMappingURL=index.js.map
