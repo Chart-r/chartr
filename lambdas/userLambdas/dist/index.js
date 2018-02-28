@@ -32,7 +32,7 @@ exports.handler = function (event, context) {
         //Retrieve an existing user from the database
         console.log("Handling get user event");
 
-        var _bodyJson = JSON.parse(event.body);
+        var _bodyJson = event["queryStringParameters"];
         console.log("Body received: ", _bodyJson);
 
         var params = {
@@ -88,6 +88,18 @@ exports.handler = function (event, context) {
         });
     } else if (method === "DELETE") {
         console.log("Handling delete user event");
+
+        var _bodyJson3 = JSON.parse(event.body);
+        console.log("Body received: ", _bodyJson3);
+
+        var _params2 = {
+            TableName: "User",
+            Key: _bodyJson3
+        };
+
+        docClient.delete(_params2, function (err, data) {
+            if (err) console.log(err);else console.log(data);
+        });
     }
 };
 //# sourceMappingURL=index.js.map

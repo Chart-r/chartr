@@ -32,7 +32,7 @@ exports.handler = function(event, context) {
     else if (method === "GET") { //Retrieve an existing user from the database
         console.log("Handling get user event");
 
-        let bodyJson = JSON.parse(event.body);
+        let bodyJson = event["queryStringParameters"];
         console.log("Body received: ", bodyJson);
 
         let params = {
@@ -93,5 +93,18 @@ exports.handler = function(event, context) {
     }
     else if (method === "DELETE") {
         console.log("Handling delete user event");
+
+        let bodyJson = JSON.parse(event.body);
+        console.log("Body received: ", bodyJson);
+
+        let params = {
+            TableName: "User",
+            Key: bodyJson
+        };
+
+        docClient.delete(params, function(err, data) {
+            if (err) console.log(err);
+            else console.log(data);
+        });
     }
 };
