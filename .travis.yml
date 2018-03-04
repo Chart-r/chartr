@@ -1,3 +1,8 @@
 language: java
 sudo: false
-script: cd lambdas/testFunction/ && mvn clean verify
+script: 
+  - cd lambdas/testFunction/ && mvn clean verify
+  - cd ../../
+  - cd lambdas/userLambda
+  - npm install
+  - npm test
