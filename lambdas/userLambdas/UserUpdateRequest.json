@@ -5,7 +5,7 @@
     "resourceId": "123456",
     "apiId": "1234567890",
     "resourcePath": "/user/{proxy+}",
-    "httpMethod": "POST",
+    "httpMethod": "PUT",
     "requestId": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
     "accountId": "123456789012",
     "identity": {
@@ -49,7 +49,7 @@
   "pathParameters": {
     "proxy": "path/to/resource"
   },
-  "httpMethod": "UPDATE",
+  "httpMethod": "PUT",
   "stageVariables": {
     "baz": "qux"
   },
