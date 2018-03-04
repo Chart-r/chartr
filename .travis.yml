@@ -3,6 +3,6 @@ sudo: false
 script: 
   - cd lambdas/testFunction/ && mvn clean verify
   - cd ../../
-  - cd lambdas/userLambda
+  - cd ./lambdas/userLambda
   - npm install
   - npm test
