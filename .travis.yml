@@ -2,5 +2,4 @@ language: java
 sudo: false
 script: 
   - cd lambdas/testFunction/ && mvn clean verify
-  - ls
-  - cd ./../userLambdas/ && npm install && npm test
+  - cd ./../userLambdas/ && npm install && npm test && ./node_modules/.bin/eslint --fix UserLambda.js test/UserLambdaTest.js
