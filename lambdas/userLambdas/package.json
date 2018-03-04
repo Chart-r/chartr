@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha dist/test/*Test.js --reporter spec",
+    "test": "npm run-script build && ./node_modules/mocha/bin/mocha dist/test/*Test.js --reporter spec",
     "build": "rimraf dist/ && babel ./ --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files"
   },
   "keywords": [],
