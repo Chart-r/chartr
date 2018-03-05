@@ -13,6 +13,7 @@ import (
 	"encoding/json"
 	"os"
 	"github.com/google/uuid"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 )
 
 var (
@@ -40,6 +41,155 @@ type User struct {
 	Trips map[string]string`json:"trips"`
 }
 
+func ProcessRequest (svc dynamodbiface.DynamoDBAPI, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	switch request.HTTPMethod {
+	case "POST":
+		log.Print("Handling post trip")
+		user := User{}
+		trip := Trip{}
+
+		log.Printf("Body: %s\n", request.Body)
+
+		data := []byte(request.Body)
+
+		// Get the user data from the JSON
+		err := json.Unmarshal(data, &user)
+		if err != nil {
+			panic(fmt.Sprintf("Failed to unmarshal User, %v", err))
+		}
+
+		// Get the trip data from the JSON
+		err = json.Unmarshal(data, &trip)
+		if err != nil {
+			panic(fmt.Sprintf("Failed to unmarshal Trip, %v", err))
+		}
+		// Add the creating user as the driver
+		trip.Users=make(map[string]string)
+		trip.Users[user.Email] = "Driver"
+		trip.ID = uuid.New().String()
+
+		log.Printf("Trip info: %v", trip)
+		log.Printf("User info: %s", user)
+
+
+		// Get current user info
+		result, err := svc.GetItem(&dynamodb.GetItemInput{
+			TableName: aws.String("User"),
+			Key: map[string]*dynamodb.AttributeValue{
+				"email": {
+					S: aws.String(user.Email),
+				},
+			},
+		})
+		log.Printf("User info: %s", user)
+
+		if err != nil {
+			fmt.Println("1" + err.Error())
+			os.Exit(0)
+		}
+		log.Printf("User info: %s", user)
+
+		err = dynamodbattribute.UnmarshalMap(result.Item, &user)
+		log.Printf("User info: %s", user)
+		log.Printf("Grab user from database %s", user)
+
+		if user.Trips == nil {
+			user.Trips = make(map[string]string)
+		}
+		user.Trips[trip.ID] = "Driver"
+		log.Printf("Make user trip: %s", user.Trips)
+		var userTripDB =make(map[string]*dynamodb.AttributeValue)
+		for k,v := range user.Trips {
+			log.Printf("Key and Value pair: %s, %s", k, v)
+			userTripDB[k]=&dynamodb.AttributeValue{S: &v,}
+		}
+
+		// Update the current user's trips to include created trip
+		updateUserInput := &dynamodb.UpdateItemInput{
+			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+				":trip": {
+					M: userTripDB,
+				},
+			},
+			TableName: aws.String("User"),
+			Key: map[string]*dynamodb.AttributeValue{
+				"email": {
+					S: aws.String(user.Email),
+				},
+			},
+			ReturnValues:     aws.String("UPDATED_NEW"),
+			UpdateExpression: aws.String("set trips = :trip"),
+		}
+
+		_, err = svc.UpdateItem(updateUserInput)
+
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+
+		// Update the trips table with the created trip
+		tripItem, err := dynamodbattribute.MarshalMap(trip)
+
+		log.Printf("AV item, %s", tripItem)
+
+		input := &dynamodb.PutItemInput{
+			Item: tripItem,
+			TableName: aws.String("Trip"),
+		}
+
+		_, err = svc.PutItem(input)
+
+		if err != nil {
+			fmt.Println("Got error calling PutItem:")
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+
+	case "GET":
+		params := &dynamodb.ScanInput{
+			TableName: aws.String("Trip"),
+		}
+		result, err := svc.Scan(params)
+		if err != nil {
+			fmt.Errorf("Error %s", err)
+		}
+
+		obj := []Trip{}
+		err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &obj)
+		if err != nil {
+			fmt.Errorf("Error %s", err)
+		}
+		log.Printf("Trips data: %v", obj)
+
+		j, err := json.Marshal(&obj)
+		if err != nil {
+			fmt.Println("Got error calling PutItem:")
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+
+		return events.APIGatewayProxyResponse{
+			Body:       string(j),
+			StatusCode: 200,
+		}, nil
+
+	case "DELETE":
+		log.Print("DELETE")
+	}
+
+	// If no name is provided in the HTTP request body, throw an error
+	if len(request.Body) < 1 {
+		return events.APIGatewayProxyResponse{}, ErrNameNotProvided
+	}
+
+	return events.APIGatewayProxyResponse{
+		Body:       request.Body,
+		StatusCode: 200,
+	}, nil
+}
+
 // Handler is your Lambda function handler
 // It uses Amazon API Gateway request/responses provided by the aws-lambda-go/events package,
 // However you could use other event sources (S3, Kinesis etc), or JSON-decoded primitive types such as 'string'.
@@ -60,149 +210,7 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, err
 	}
 
-	switch request.HTTPMethod {
-		case "POST":
-			log.Print("Handling post trip")
-			user := User{}
-			trip := Trip{}
-
-			log.Printf("Body: %s\n", request.Body)
-
-			data := []byte(request.Body)
-
-			// Get the user data from the JSON
-			err = json.Unmarshal(data, &user)
-			if err != nil {
-				panic(fmt.Sprintf("Failed to unmarshal User, %v", err))
-			}
-
-			// Get the trip data from the JSON
-			err = json.Unmarshal(data, &trip)
-			if err != nil {
-				panic(fmt.Sprintf("Failed to unmarshal Trip, %v", err))
-			}
-			// Add the creating user as the driver
-			trip.Users=make(map[string]string)
-			trip.Users[user.Email] = "Driver"
-			trip.ID = uuid.New().String()
-
-			log.Printf("Trip info: %s", trip)
-			log.Printf("User info: %s", user)
-
-
-			// Get current user info
-			result, err := svc.GetItem(&dynamodb.GetItemInput{
-				TableName: aws.String("User"),
-				Key: map[string]*dynamodb.AttributeValue{
-					"email": {
-						S: aws.String(user.Email),
-					},
-				},
-			})
-
-			if err != nil {
-				fmt.Println("1" + err.Error())
-				os.Exit(0)
-			}
-
-			err = dynamodbattribute.UnmarshalMap(result.Item, &user)
-			log.Printf("Grab user from database %s", user)
-
-			if user.Trips == nil {
-				user.Trips = make(map[string]string)
-			}
-			user.Trips[trip.ID] = "Driver"
-			log.Printf("Make user trip: %s", user.Trips)
-			var userTripDB =make(map[string]*dynamodb.AttributeValue)
-			for k,v := range user.Trips {
-				log.Printf("Key and Value pair: %s, %s", k, v)
-				userTripDB[k]=&dynamodb.AttributeValue{S: &v,}
-			}
-
-			// Update the current user's trips to include created trip
-			updateUserInput := &dynamodb.UpdateItemInput{
-				ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-					":trip": {
-						M: userTripDB,
-					},
-				},
-				TableName: aws.String("User"),
-				Key: map[string]*dynamodb.AttributeValue{
-					"email": {
-						S: aws.String(user.Email),
-					},
-				},
-				ReturnValues:     aws.String("UPDATED_NEW"),
-				UpdateExpression: aws.String("set trips = :trip"),
-			}
-
-			_, err = svc.UpdateItem(updateUserInput)
-
-			if err != nil {
-				fmt.Println(err.Error())
-				os.Exit(1)
-			}
-
-			// Update the trips table with the created trip
-			tripItem, err := dynamodbattribute.MarshalMap(trip)
-
-			log.Printf("AV item, %s", tripItem)
-
-			input := &dynamodb.PutItemInput{
-				Item: tripItem,
-				TableName: aws.String("Trip"),
-			}
-
-			_, err = svc.PutItem(input)
-
-			if err != nil {
-				fmt.Println("Got error calling PutItem:")
-				fmt.Println(err.Error())
-				os.Exit(1)
-			}
-
-		case "GET":
-			params := &dynamodb.ScanInput{
-				TableName: aws.String("Trip"),
-			}
-			result, err := svc.Scan(params)
-			if err != nil {
-				fmt.Errorf("Error %s", err)
-			}
-
-			obj := []Trip{}
-			err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &obj)
-			if err != nil {
-				fmt.Errorf("Error %s", err)
-			}
-			log.Printf("Trips data: %s", obj)
-
-			j, err := json.Marshal(&obj)
-			if err != nil {
-				fmt.Println("Got error calling PutItem:")
-				fmt.Println(err.Error())
-				os.Exit(1)
-			}
-
-			return events.APIGatewayProxyResponse{
-				Body:       string(j),
-				StatusCode: 200,
-			}, nil
-
-		case "DELETE":
-			log.Print("DELETE")
-	}
-
-	// If no name is provided in the HTTP request body, throw an error
-	if len(request.Body) < 1 {
-		return events.APIGatewayProxyResponse{}, ErrNameNotProvided
-	}
-
-	return events.APIGatewayProxyResponse{
-		Body:       request.Body,
-		StatusCode: 200,
-	}, nil
-
+	return ProcessRequest(svc, request)
 }
 
 func main() {
