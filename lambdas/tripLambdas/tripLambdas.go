@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"encoding/json"
 	"os"
+	"github.com/google/uuid"
 )
 
 var (
@@ -83,7 +84,7 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 			// Add the creating user as the driver
 			trip.Users=make(map[string]string)
 			trip.Users[user.Email] = "Driver"
-			trip.ID = "12345"
+			trip.ID = uuid.New().String()
 
 			log.Printf("Trip info: %s", trip)
 			log.Printf("User info: %s", user)
@@ -198,7 +199,7 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	}
 
 	return events.APIGatewayProxyResponse{
-		Body:       "Hello World" + request.Body,
+		Body:       request.Body,
 		StatusCode: 200,
 	}, nil
 
