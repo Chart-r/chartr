@@ -161,6 +161,11 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 				os.Exit(1)
 			}
 
+			return events.APIGatewayProxyResponse{
+				Body:       "Successfully created trip",
+				StatusCode: 200,
+			}, nil
+
 		case "GET":
 			params := &dynamodb.ScanInput{
 				TableName: aws.String("Trip"),
@@ -198,10 +203,7 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		return events.APIGatewayProxyResponse{}, ErrNameNotProvided
 	}
 
-	return events.APIGatewayProxyResponse{
-		Body:       request.Body,
-		StatusCode: 200,
-	}, nil
+
 
 }
 
