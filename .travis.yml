@@ -2,7 +2,7 @@ language: java
 sudo: false
 script: 
   - cd lambdas/testFunction/ && mvn clean verify
-  - cd ./../tripLambdas/ && go get ./... && go test
+  - cd ./../tripLambdas/ && export GOPATH=/home/travis/build/Chart-r/chartr/lambdas/tripLambdas && go get ./... && go test
 notifications:
   slack:
     secure: XdHeBOO4qaH5qj4urmiKC9QPfXlfarQDHKMmuHQlZ4mHncIFWEun+l9/9k8LT/q8hK9CQemI3VxxIqxJNXdVtQmJbez6KWoD1DZAddlTQB3ml8mle9dDfg3O+l/iRZmEDey35o/6sXBPz57ezIbriw9VveFZYQ6IlQaWVBN0c5MWb48Pwf1WDh0SXd/u6F3Kb/0tB7GGOSsJrTRrIQ9oiE9FmxS/BlIbEXEoyJ7U+/4DljY07jmCO7Lql3F7ZoAZBwz7xVRWzCKTspa6LTYA+2u/LiZ7r0GaXp2fZ8EhO4tsbL+jPHz+s6I4TFHPZv8hSeP/x0tCrmRfPg8/TzDFGbF6TAZ7AVkKEnxLx7+/FJ6uEVkMEvkui7d84b12GwNLhw49TY3/2doOKNxFZk/cugRF8nAgN263WOfFOpFQB8xSY+mv81G5kXlyV8URENi35dJVXtxHVm4hmeoBiGcxWjZLvPwxYB/4apIWcBGEI869b/UTw2WTZbEGADeXGrwYgW6ztwRfhKErfhKonaubo/Ik/mAzVTHLWaLoRAhXWUZrQANYiPjSzGEbwdM7bwFLk/9GvZQBhEGpBNaHIrRhcU1IAghA43o9w1+pVfvr4JRXdwwspEkJY6buUJUCsvtQ+gwl+dy/e0+MJlqFkxMmtLLgxOzW7qk44GRGD7/l5+c=
