@@ -43,6 +43,9 @@ type User struct {
 
 func ProcessRequest (svc dynamodbiface.DynamoDBAPI, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	responseHeaders := make(map[string]string)
+	responseHeaders["Access-Control-Allow-Origin"] = "*"
+
 	switch request.HTTPMethod {
 	case "POST":
 		log.Print("Handling post trip")
@@ -173,6 +176,7 @@ func ProcessRequest (svc dynamodbiface.DynamoDBAPI, request events.APIGatewayPro
 		return events.APIGatewayProxyResponse{
 			Body:       string(j),
 			StatusCode: 200,
+			Headers: responseHeaders,
 		}, nil
 
 	case "DELETE":
@@ -181,12 +185,15 @@ func ProcessRequest (svc dynamodbiface.DynamoDBAPI, request events.APIGatewayPro
 
 	// If no name is provided in the HTTP request body, throw an error
 	if len(request.Body) < 1 {
-		return events.APIGatewayProxyResponse{}, ErrNameNotProvided
+		return events.APIGatewayProxyResponse{
+			Headers: responseHeaders,
+		}, ErrNameNotProvided
 	}
 
 	return events.APIGatewayProxyResponse{
 		Body:       request.Body,
 		StatusCode: 200,
+		Headers: responseHeaders,
 	}, nil
 }
 
@@ -205,9 +212,14 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	svc := dynamodb.New(sess)
 
+	responseHeaders := make(map[string]string)
+	responseHeaders["Access-Control-Allow-Origin"] = "*"
+
 	if err != nil {
 		fmt.Println(err.Error())
-		return events.APIGatewayProxyResponse{}, err
+		return events.APIGatewayProxyResponse{
+			Headers: responseHeaders,
+		}, err
 	}
 
 	return ProcessRequest(svc, request)
