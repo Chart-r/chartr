@@ -23,7 +23,7 @@ AWS.mock('DynamoDB.DocumentClient', 'get', function(params, callback) {
 
 
 describe('Test suite for User Lambda', function() {
-    it('Test get user from database', function() {
+    it('Test get user from database', function(done) {
         let event = {
             httpMethod: 'GET',
             body: '{}',
@@ -47,10 +47,12 @@ describe('Test suite for User Lambda', function() {
 
             assert.equal(body.email, 'testPerson@gmail.com');
             assert.equal(body.name, 'Test Person');
+
+            done();
         }
     });
 
-    it('Test update user from database', function() {
+    it('Test update user from database', function(done) {
         let event = {
             httpMethod: 'PUT',
             body: '{"email":"joe.smitty@gmail.com",' +
@@ -71,10 +73,11 @@ describe('Test suite for User Lambda', function() {
             let body = JSON.parse(response.body);
 
             assert.equal(body, 'Successfully updated user!');
+            done();
         }
     });
 
-    it('Test delete user from database', function() {
+    it('Test delete user from database', function(done) {
         let event = {
             httpMethod: 'DELETE',
             body: '{"email":"joe.smitty@gmail.com"}',
@@ -94,10 +97,11 @@ describe('Test suite for User Lambda', function() {
             let body = JSON.parse(response.body);
 
             assert.equal(body, 'Successfully deleted user!');
+            done();
         }
     });
 
-    it('Test post user into database', function() {
+    it('Test post user into database', function(done) {
         let event = {
             httpMethod: 'POST',
             body: '{"email":"joe.smitty@gmail.com","name":"Joe Smitty"}',
@@ -117,6 +121,7 @@ describe('Test suite for User Lambda', function() {
             let body = JSON.parse(response.body);
 
             assert.equal(body, 'Successfully created user!');
+            done();
         }
     });
 });
