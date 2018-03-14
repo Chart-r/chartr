@@ -197,6 +197,9 @@ function writeAPIOutput(statCode, bodyMessage, callback) {
     let response = {
         statusCode: statCode,
         body: JSON.stringify(bodyMessage),
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+        },
     };
 
     callback(null, response);
