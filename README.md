@@ -1,7 +1,7 @@
 # chartr
 Chartr: A New Way to Travel
 
-#Endpoints:
+# Endpoints:
 
 # User Functions
 
@@ -9,17 +9,15 @@ Chartr: A New Way to Travel
 
 GET: /user/:id
 
-Params {
+Params:
 
     uid: The uid of the user to get
-
-}
 
 ## Post User
 
 POST: /user
 
-Body: {
+Body:
 
     "email": email,
 
@@ -29,17 +27,13 @@ Body: {
 
     "phone": phone
 
-}
-
 ## Delete User
 
 DELETE: /user/:id
 
-Params: {
+Params:
 
     uid: The uid of the user to delete
-
-}
 
 # Trip Functions
 
@@ -47,13 +41,11 @@ Params: {
 
 POST: /user/:uid/trip
 
-Params: {
+Params:
 
     uid: The uid of the user creating the trip
 
-}
-
-Body: {
+Body:
 
     "end_lat": end_lat,
 
@@ -71,8 +63,6 @@ Body: {
 
     "start_lng": start_lng,
 
-}
-
 Notes:
  - The user creating the trip will be set as the driver
 
@@ -88,33 +78,27 @@ GET: /trip/current
 
 GET: /user/:uid/trip
 
-Params: {
+Params:
 
     uid: The uid of the user to get trips for
-
-}
 
 ## Get specific trip
 
 GET: /trip/:tid
 
-Params: {
+Params:
 
     tid: The tid of the trip to get
-
-}
 
 # Get user's filtered trips
 
 GET: /user/:uid/trip/:status
 
-Params:　{
+Params:　
 
     uid: The uid of the user to get the trips for
 
     status: The status to filter on
-
-}
 
 Notes:
  - Use only 'driving', 'pending', 'riding' for the status,
@@ -124,15 +108,13 @@ Notes:
 
 GET: /user/:uid/trip/:tid/:status
 
-Params: {
+Params:
 
     uid: The uid of the user requesting or being accepted
 
     tid: The trip the user is requesting or being accepted
 
     status: The status of the user
-
-}
 
 Notes:
  - Use this function when users request to ride on a trip
@@ -143,11 +125,9 @@ Notes:
 
 DELETE: /trip/:tid
 
-Params: {
+Params:
 
     tid: The tid of the trip being deleted
-
-}
 
 ## Review functions
 
@@ -155,7 +135,7 @@ Params: {
 
 POST: /user/:uid/review
 
-Body: {
+Body:
 
     "reviewee": reviewee_id,
 
@@ -165,13 +145,9 @@ Body: {
 
     "rating": rating,
 
-}
-
-Params: {
+Params:
 
     uid: The uid of the user posting the review
-
-}
 
 Notes:
  - Make sure to set the uid as the reviewer and not the reviewee
@@ -182,18 +158,14 @@ Notes:
 
 GET: /review/:rid
 
-Params: {
+Params:
 
     rid: The rid of the review to get
-
-}
 
 # Get all of a user's review
 
 GET: /user/:uid/review
 
-Params: {
+Params:
 
     uid: The uid of the user to get all reviews for
-
-}
