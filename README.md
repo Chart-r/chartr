@@ -3,7 +3,24 @@ Chartr: A New Way to Travel
 
 # Endpoints:
 
+
 # User Functions
+
+## User Object Structure
+
+    uid: String
+
+    email: String,
+
+    name: String,
+
+    birthdate: String,
+
+    phone: String
+
+    rating: Double
+
+    review_count: Int
 
 ## Get User
 
@@ -35,7 +52,39 @@ Params:
 
     uid: The uid of the user to delete
 
+
+
 # Trip Functions
+
+## Trip Object Structure
+
+    tid: String,
+
+    end_lat: Double,
+
+    end_lng: Double,
+
+    end_time: Long,
+
+    price: Int,
+
+    seats: Int,
+
+    smoking: Boolean,
+
+    start_lat: Double,
+
+    start_lng: Double
+
+    users: {
+
+        item1: "driving"
+
+        item2: "riding"
+
+        item3: "pending"
+
+    }
 
 ## Create a trip
 
@@ -129,7 +178,23 @@ Params:
 
     tid: The tid of the trip being deleted
 
+
+
 ## Review functions
+
+# Review Object Structure
+
+    rid: String
+
+    reviewer: String
+
+    reviewee: String,
+
+    trip: String,
+
+    comment: String,
+
+    rating: Double,
 
 # Post a review
 
