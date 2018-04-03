@@ -11,7 +11,7 @@ GET: /user/:id
 
 Params {
 
-  uid: The uid of the user to get
+    uid: The uid of the user to get
 
 }
 
@@ -21,13 +21,13 @@ POST: /user
 
 Body: {
 
-  "email": email,
+    "email": email,
 
-  "name": name,
+    "name": name,
 
-  "birthdate": birthdate,
+    "birthdate": birthdate,
 
-  "phone": phone
+    "phone": phone
 
 }
 
@@ -37,7 +37,7 @@ DELETE: /user/:id
 
 Params: {
 
-  uid: The uid of the user to delete
+    uid: The uid of the user to delete
 
 }
 
@@ -49,7 +49,7 @@ POST: /user/:uid/trip
 
 Params: {
 
-  uid: The uid of the user creating the trip
+    uid: The uid of the user creating the trip
 
 }
 
@@ -90,7 +90,7 @@ GET: /user/:uid/trip
 
 Params: {
 
-  uid: The uid of the user to get trips for
+    uid: The uid of the user to get trips for
 
 }
 
@@ -100,7 +100,7 @@ GET: /trip/:tid
 
 Params: {
 
-  tid: The tid of the trip to get
+    tid: The tid of the trip to get
 
 }
 
@@ -110,9 +110,9 @@ GET: /user/:uid/trip/:status
 
 Params:　{
 
-  uid: The uid of the user to get the trips for
+    uid: The uid of the user to get the trips for
 
-  status: The status to filter on
+    status: The status to filter on
 
 }
 
@@ -126,11 +126,11 @@ GET: /user/:uid/trip/:tid/:status
 
 Params: {
 
-  uid: The uid of the user requesting or being accepted
+    uid: The uid of the user requesting or being accepted
 
-  tid: The trip the user is requesting or being accepted
+    tid: The trip the user is requesting or being accepted
 
-  status: The status of the user
+    status: The status of the user
 
 }
 
@@ -145,7 +145,7 @@ DELETE: /trip/:tid
 
 Params: {
 
-  tid: The tid of the trip being deleted
+    tid: The tid of the trip being deleted
 
 }
 
@@ -157,19 +157,19 @@ POST: /user/:uid/review
 
 Body: {
 
-  "reviewee": reviewee_id,
+    "reviewee": reviewee_id,
 
-  "trip": tid,
+    "trip": tid,
 
-  "comment": comment,
+    "comment": comment,
 
-  "rating": rating,
+    "rating": rating,
 
 }
 
 Params: {
 
-  uid: The uid of the user posting the review
+    uid: The uid of the user posting the review
 
 }
 
@@ -184,7 +184,7 @@ GET: /review/:rid
 
 Params: {
 
-  rid: The rid of the review to get
+    rid: The rid of the review to get
 
 }
 
@@ -194,6 +194,6 @@ GET: /user/:uid/review
 
 Params: {
 
-  uid: The uid of the user to get all reviews for
+    uid: The uid of the user to get all reviews for
 
 }
