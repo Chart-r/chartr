@@ -145,7 +145,7 @@ app.get('/trip/current', function(req,res){
     TableName: 'TripTest',
     FilterExpression: "#start_time > :date",
     ExpressionAttributeNames: {
-      "#start": "start_time"
+      "#start_time": "start_time"
     },
     ExpressionAttributeValues : {
       ":date" : date
