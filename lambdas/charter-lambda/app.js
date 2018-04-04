@@ -31,7 +31,10 @@ app.get('/user/:email', function(req,res){
       res.json("Error");
     }
     else {
-      res.json(data["Items"]);
+      if (data["Items"][0] == null) {
+        res.json("No user found")
+      }
+      res.json(data["Items"][0]);
     }
   });
 });
