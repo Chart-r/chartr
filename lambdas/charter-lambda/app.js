@@ -1,32 +1,37 @@
 var express = require('express');
+var cors = require('cors');
 var app = express();
 var bodyParser = require('body-parser');
 const uuidv4 = require('uuid/v4');
 let AWS = require('aws-sdk');
 let docClient = new AWS.DynamoDB.DocumentClient();
 
+app.use(cors());
 app.use(bodyParser.json());
 
 /** User Functions */
 
 // Get User
-app.get('/user/:id', function(req,res){
-  let id = req.params.id;
-  
+app.get('/user/:email', function(req,res){
+  let email = req.params.email;
+
   let params = {
     TableName: 'UserTest',
-      Key: {"uid":id},
+    FilterExpression: "#email = :search",
+    ExpressionAttributeNames: {
+      "#email": "email"
+    },
+    ExpressionAttributeValues : {
+      ":search" : email
+    }
   };
 
-  docClient.get(params, function(err, data) {
+  docClient.scan(params, function(err, data) {
     if (err) {
       res.json("Error");
     }
     else {
-      if (data['Item'] == null) {
-        res.json("No user found");
-      }
-      res.json(data['Item']);
+      res.json(data["Items"]);
     }
   });
 });
@@ -41,7 +46,7 @@ app.post('/user', function(req,res){
       "birthdate": req.body.birthdate,
       "phone": req.body.phone
     };
-    
+
     let parameters = {
         TableName: 'UserTest',
         Item: userData,
@@ -66,7 +71,7 @@ app.delete('/user/:id', function(req, res) {
       TableName: 'UserTest',
       Key: {"uid":id},
    };
-  
+
   docClient.delete(params, function(err, data) {
     if (err) {
       res.json("Error");
@@ -94,6 +99,7 @@ app.post('/user/:uid/trip/', function(req,res){
       "smoking": req.body.smoking,
       "start_lat": req.body.start_lat,
       "start_lng": req.body.start_lng,
+      "start_time": req.body.start_time,
       "users": {
         [uid]: "driving"
       }
@@ -137,13 +143,13 @@ app.get('/trip/current', function(req,res){
 
   let params = {
     TableName: 'TripTest',
-    FilterExpression: "#end_time > :date",
+    FilterExpression: "#start_time > :date",
     ExpressionAttributeNames: {
-      "#end_time": "end_time"
+      "#start": "start_time"
     },
     ExpressionAttributeValues : {
       ":date" : date
-    } 
+    }
   };
 
   docClient.scan(params, function(err, data) {
@@ -169,9 +175,9 @@ app.get('/user/:uid/trip/', function(req,res){
     },
     ExpressionAttributeValues : {
       ":filter" : " "
-    } 
+    }
   };
-  
+
   docClient.scan(params, function(err, data) {
     if (err) {
       res.json("Error");
@@ -186,7 +192,7 @@ app.get('/user/:uid/trip/', function(req,res){
 // Get specific trips
 app.get('/trip/:tid', function(req,res){
   let tid = req.params.tid;
-  
+
   let params = {
     TableName: 'TripTest',
     Key: {"tid":tid}
@@ -206,7 +212,7 @@ app.get('/trip/:tid', function(req,res){
 app.get('/user/:uid/trip/:filter', function(req,res){
   let id = req.params.uid;
   let filter = req.params.filter;
-  
+
   let params = {
     TableName: 'TripTest',
     FilterExpression: "#users.#id = :filter",
@@ -216,9 +222,9 @@ app.get('/user/:uid/trip/:filter', function(req,res){
     },
     ExpressionAttributeValues : {
       ":filter" : filter
-    } 
+    }
   };
-  
+
   docClient.scan(params, function(err, data) {
     if (err) {
       res.json("Error");
@@ -268,7 +274,7 @@ app.delete('/trip/:tid', function(req, res) {
       TableName: 'TripTest',
       Key: {"tid":tid},
    };
-  
+
   docClient.delete(params, function(err, data) {
     if (err) {
       res.json("Error");
@@ -286,7 +292,7 @@ app.post('/user/:uid/review/', function(req,res){
   let rid = uuidv4();
   let uid = req.params.uid;
   let duid = req.params.duid;
-  
+
   var reviewData = {
     "rid": rid,
     "reviewer": uid,
@@ -295,7 +301,7 @@ app.post('/user/:uid/review/', function(req,res){
     "comment": req.body.comment,
     "rating": req.body.rating,
   };
-  
+
   let parameters = {
       TableName: 'ReviewTest',
       Item: reviewData
@@ -315,7 +321,7 @@ app.post('/user/:uid/review/', function(req,res){
 // Get a review
 app.get('/review/:rid', function(req,res){
   let rid = req.params.rid;
-  
+
   let params = {
     TableName: 'UserTest',
       Key: {"rid":rid},
@@ -346,9 +352,9 @@ app.get('/user/:uid/review/', function(req,res){
     },
     ExpressionAttributeValues : {
       ":uid" : uid
-    } 
+    }
   };
-  
+
   docClient.scan(params, function(err, data) {
     if (err) {
       res.json("Error");
@@ -381,8 +387,8 @@ function updateRating(uid, rating, res) {
         numReview++;
         newRating /= numReview;
       }
-  
-      
+
+
       let params = {
         TableName: 'UserTest',
         Key: {"uid": uid},
@@ -406,7 +412,7 @@ function updateRating(uid, rating, res) {
               res.json("Success");
           }
       });
-      
+
     }
   });
 }

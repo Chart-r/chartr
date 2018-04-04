@@ -24,11 +24,14 @@ Chartr: A New Way to Travel
 
 ## Get User
 
-GET: /user/:id
+GET: /user/:email
 
 Params:
 
-    uid: The uid of the user to get
+    email: The email of the user to get
+
+Notes:
+ - If there are no users that match the email, it will return an empty list []
 
 ## Post User
 
@@ -111,6 +114,8 @@ Body:
     "start_lat": start_lat,
 
     "start_lng": start_lng,
+
+    "start_time": start_time
 
 Notes:
  - The user creating the trip will be set as the driver
