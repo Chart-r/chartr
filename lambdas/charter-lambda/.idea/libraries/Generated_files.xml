@@ -1,0 +1,17 @@
+<component name="libraryTable">
+  <library name="Generated files" type="javaScript">
+    <properties>
+      <sourceFilesUrls>
+        <item url="file://$PROJECT_DIR$/dist/app.js" />
+        <item url="file://$PROJECT_DIR$/dist/lambda.js" />
+        <item url="file://$PROJECT_DIR$/dist/test/lambdaTest.js" />
+      </sourceFilesUrls>
+    </properties>
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/dist/app.js" />
+      <root url="file://$PROJECT_DIR$/dist/lambda.js" />
+      <root url="file://$PROJECT_DIR$/dist/test/lambdaTest.js" />
+    </CLASSES>
+    <SOURCES />
+  </library>
+</component>
