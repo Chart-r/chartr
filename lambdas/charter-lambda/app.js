@@ -115,12 +115,12 @@ app.post("/email/confirmation", (req, res) => {
 
 /** User Functions */
 
-// Get User
-app.get("/user/:email", function(req,res){
+// Get User By Email
+app.get('/user/:email', function(req,res){
     let email = req.params.email;
 
     let params = {
-        TableName: "UserTest",
+        TableName: 'UserTest',
         FilterExpression: "#email = :search",
         ExpressionAttributeNames: {
             "#email": "email"
@@ -136,9 +136,31 @@ app.get("/user/:email", function(req,res){
         }
         else {
             if (data["Items"][0] == null) {
-                res.json("No user found");
+                res.json("No user found")
             }
             res.json(data["Items"][0]);
+        }
+    });
+});
+
+// Get User By UID
+app.get('/user/uid/:id', function(req,res){
+    let id = req.params.id;
+
+    let params = {
+        TableName: 'UserTest',
+        Key: {"uid":id},
+    };
+
+    docClient.get(params, function(err, data) {
+        if (err) {
+            res.json("Error");
+        }
+        else {
+            if (data['Item'] == null) {
+                res.json("No user found");
+            }
+            res.json(data['Item']);
         }
     });
 });
