@@ -24,7 +24,7 @@ app.post("/email/confirmation", (req, res) => {
         "tripTime" : req.body.tripTime
     };
 
-    AWS.config.update({region: 'us-east-1'});
+    AWS.config.update({region: "us-east-1"});
 
     let date = new Date(emailInfo.tripTime);
     let driverMessage = "You have accepted " + emailInfo.riderName + " on your trip which leaves on " +
@@ -49,13 +49,13 @@ app.post("/email/confirmation", (req, res) => {
                 }
             },
             Subject: {
-                Charset: 'UTF-8',
-                Data: 'Chartr Trip Confirmation'
+                Charset: "UTF-8",
+                Data: "Chartr Trip Confirmation"
             }
         },
-        Source: 'chartr.dev@gmail.com', /* required */
+        Source: "chartr.dev@gmail.com", /* required */
         ReplyToAddresses: [
-            'chartr.dev@gmail.com'
+            "chartr.dev@gmail.com"
         ],
     };
 
@@ -73,40 +73,40 @@ app.post("/email/confirmation", (req, res) => {
                 }
             },
             Subject: {
-                Charset: 'UTF-8',
-                Data: 'Chartr Trip Confirmation'
+                Charset: "UTF-8",
+                Data: "Chartr Trip Confirmation"
             }
         },
-        Source: 'chartr.dev@gmail.com', /* required */
+        Source: "chartr.dev@gmail.com", /* required */
         ReplyToAddresses: [
-            'chartr.dev@gmail.com'
+            "chartr.dev@gmail.com"
         ],
     };
 
     // Create the promise and SES service object
-    let driverPromise = new AWS.SES({apiVersion: '2010-12-01'}).sendEmail(driverEmailParams).promise();
+    let driverPromise = new AWS.SES({apiVersion: "2010-12-01"}).sendEmail(driverEmailParams).promise();
 
     // Handle promise's fulfilled/rejected states
     driverPromise.then(
         function(data) {
             console.log(data.MessageId);
 
-            let riderPromise = new AWS.SES({apiVersion: '2010-12-01'}).sendEmail(riderEmailParams).promise();
+            let riderPromise = new AWS.SES({apiVersion: "2010-12-01"}).sendEmail(riderEmailParams).promise();
 
             riderPromise.then((data) => {
-                    console.log(data.MessageId);
-                    AWS.config.update({region: 'us-east-2'});
-                    res.json("Success!");
-                }).catch((err) => {
-                    console.log(err, err.stack);
-                    AWS.config.update({region: 'us-east-2'});
-                    res.json("Failure...");
-                });
+                console.log(data.MessageId);
+                AWS.config.update({region: "us-east-2"});
+                res.json("Success!");
+            }).catch((err) => {
+                console.log(err, err.stack);
+                AWS.config.update({region: "us-east-2"});
+                res.json("Failure...");
+            });
 
         }).catch(
         function(err) {
             console.error(err, err.stack);
-            AWS.config.update({region: 'us-east-2'});
+            AWS.config.update({region: "us-east-2"});
             res.json("Failure...");
         });
 });
