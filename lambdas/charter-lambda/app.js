@@ -9,14 +9,118 @@ let docClient = new AWS.DynamoDB.DocumentClient();
 app.use(cors());
 app.use(bodyParser.json());
 
+/**
+ * Email function
+ */
+
+app.post("/email/confirmation", (req, res) => {
+    let emailInfo = {
+        "driverName": req.body.driverName,
+        "riderName": req.body.riderName,
+        "driverPhone": req.body.driverPhone,
+        "riderPhone": req.body.riderPhone,
+        "driverEmail": req.body.driverEmail,
+        "riderEmail": req.body.riderEmail,
+        "tripTime" : req.body.tripTime
+    };
+
+    AWS.config.update({region: "us-east-1"});
+
+    let date = new Date(emailInfo.tripTime);
+    let driverMessage = "You have accepted " + emailInfo.riderName + " on your trip which leaves on " +
+                            date.toDateString() + ". You can contact your rider at the following number: " +
+                            emailInfo.riderPhone + "\n\n Thank you for using Chartr!";
+    let riderMessage = "Good news! You have been accepted on " + emailInfo.driverName + "'s trip which leaves on " +
+                            date.toDateString() + ". You can contact your driver at the following number: " +
+                            emailInfo.driverPhone + "\n\n Thank you for using Chartr!";
+
+    // Create sendEmail params
+    let driverEmailParams = {
+        Destination: { /* required */
+            ToAddresses: [
+                emailInfo.driverEmail
+            ]
+        },
+        Message: { /* required */
+            Body: { /* required */
+                Text: {
+                    Charset: "UTF-8",
+                    Data: driverMessage
+                }
+            },
+            Subject: {
+                Charset: "UTF-8",
+                Data: "Chartr Trip Confirmation"
+            }
+        },
+        Source: "chartr.dev@gmail.com", /* required */
+        ReplyToAddresses: [
+            "chartr.dev@gmail.com"
+        ],
+    };
+
+    let riderEmailParams = {
+        Destination: { /* required */
+            ToAddresses: [
+                emailInfo.riderEmail
+            ]
+        },
+        Message: { /* required */
+            Body: { /* required */
+                Text: {
+                    Charset: "UTF-8",
+                    Data: riderMessage
+                }
+            },
+            Subject: {
+                Charset: "UTF-8",
+                Data: "Chartr Trip Confirmation"
+            }
+        },
+        Source: "chartr.dev@gmail.com", /* required */
+        ReplyToAddresses: [
+            "chartr.dev@gmail.com"
+        ],
+    };
+
+    // Create the promise and SES service object
+    let driverPromise = new AWS.SES({apiVersion: "2010-12-01"}).sendEmail(driverEmailParams).promise();
+
+    // Handle promise's fulfilled/rejected states
+    driverPromise.then(
+        function(data) {
+            console.log(data.MessageId);
+
+            let riderPromise = new AWS.SES({apiVersion: "2010-12-01"}).sendEmail(riderEmailParams).promise();
+
+            riderPromise.then((data) => {
+                console.log(data.MessageId);
+                AWS.config.update({region: "us-east-2"});
+                res.json("Success!");
+            }).catch((err) => {
+                console.log(err, err.stack);
+                AWS.config.update({region: "us-east-2"});
+                res.json("Failure...");
+            });
+
+        }).catch(
+        function(err) {
+            console.error(err, err.stack);
+            AWS.config.update({region: "us-east-2"});
+            res.json("Failure...");
+        });
+});
+
+
+
 /** User Functions */
 
-// Get User
-app.get("/user/:email", function(req,res){
+// Get User By Email
+app.get('/user/:email', function(req,res){
     let email = req.params.email;
 
     let params = {
-        TableName: "UserTest",
+        TableName: 'UserTest',
         FilterExpression: "#email = :search",
         ExpressionAttributeNames: {
             "#email": "email"
@@ -32,9 +136,31 @@ app.get("/user/:email", function(req,res){
         }
         else {
             if (data["Items"][0] == null) {
-                res.json("No user found");
+                res.json("No user found")
             }
             res.json(data["Items"][0]);
+        }
+    });
+});
+
+// Get User By UID
+app.get('/user/uid/:id', function(req,res){
+    let id = req.params.id;
+
+    let params = {
+        TableName: 'UserTest',
+        Key: {"uid":id},
+    };
+
+    docClient.get(params, function(err, data) {
+        if (err) {
+            res.json("Error");
+        }
+        else {
+            if (data['Item'] == null) {
+                res.json("No user found");
+            }
+            res.json(data['Item']);
         }
     });
 });
